@@ -11,11 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Create and Change to Build Directory
-      run: mkdir build && cd build
+    - name: Create Build Directory
+      run: mkdir build
     - name: Configure CMake
+      working-directory: ./build
       run: cmake ..
     - name: Build
+      working-directory: ./build
       run: cmake --build . --target VDSProject_test -j 4
     - name: Run
-      run: ./VDSProject_test
+      run: .build/src/test/VDSProject_test
