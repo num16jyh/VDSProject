@@ -1,9 +1,25 @@
 #include "Manager.h"
 
 namespace ClassProject {
+    Manager::Manager() {
+        // Initialize the uniqueTable with False and True nodes
+        uniqueTable.insert({falseID, 0, 0, falseID, "False"}); // Correct label
+        uniqueTable.insert({trueID, 1, 1, trueID, "True"});    // Correct label
+    }
+    BDD_ID Manager::createVar(const std::string &label) {
+        // Check if the variable name (label) already exists
+        for (const auto &node : uniqueTable) {
+            if (node.varName == label) { // Use 'varname' instead of 'label'
+                return node.id; // Return the existing ID
+            }
+        }
 
-BDD_ID Manager::createVar(const std::string &label)
-{}
+        // Create a new variable
+        BDD_ID id = uniqueTable.size();
+        uniqueTable.insert({id, trueID, falseID, id, label}); // Use 'label' to initialize 'varname'
+        return id;
+    }
+
 
 const BDD_ID &Manager::True()
 {}
