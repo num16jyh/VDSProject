@@ -20,4 +20,4 @@ jobs:
       working-directory: ./build
       run: cmake --build . --target VDSProject_test -j 4
     - name: Run
-      run: .build/src/test/VDSProject_test
+      run: ./build/src/test/VDSProject_test
