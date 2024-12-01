@@ -14,6 +14,8 @@ class ManagerTest : public ::testing::Test
 {
 public:
     ClassProject::Manager manager;
+    const BDD_ID true_id = 1;
+    const BDD_ID false_id = 0;
 };
 
 // Manager::createVar() test
@@ -29,8 +31,8 @@ TEST_F(ManagerTest, CreateVar)
 
     // Attempting to add a label that already exists should return its already
     // assigned ID.
-    EXPECT_EQ(manager.createVar("False"), 0);
-    EXPECT_EQ(manager.createVar("True"), 1);
+    EXPECT_EQ(manager.createVar("False"), false_id);
+    EXPECT_EQ(manager.createVar("True"), true_id);
 
     for (BDD_ID i = 2; i <= testIDs; i++)
         EXPECT_EQ(manager.createVar(::std::to_string(i)), i);
