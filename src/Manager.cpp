@@ -29,11 +29,13 @@ namespace ClassProject {
         return falseID;
     }
 
-bool Manager::isConstant(BDD_ID f)
-{}
+    bool Manager::isConstant(BDD_ID f) {
+        return (f == trueID || f == falseID);
+    }
 
-bool Manager::isVariable(BDD_ID x)
-{}
+    bool Manager::isVariable(BDD_ID x) {
+        return (x != trueID && x != falseID);
+    }
 
 BDD_ID Manager::topVar(BDD_ID f)
 {}
