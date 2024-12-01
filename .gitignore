@@ -1,3 +1,4 @@
 gtest/
 cmake-build-debug
 .idea
+cmake-build-debug-coverage
