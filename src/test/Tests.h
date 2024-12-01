@@ -79,4 +79,52 @@ TEST_F(ManagerTest, IsVariable)
         EXPECT_TRUE(manager.isVariable(i));
 }
 
+// Manager::coFactorTrue() test
+TEST_F(ManagerTest, CoFactorTrue)
+{
+    const BDD_ID a_id = manager.createVar("a");
+
+    // Call with single argument.
+    EXPECT_EQ(manager.coFactorTrue(true_id), true_id);
+    EXPECT_EQ(manager.coFactorTrue(false_id), false_id);
+    EXPECT_EQ(manager.coFactorTrue(a_id), true_id);
+
+    // Call with two arguments.
+    EXPECT_EQ(manager.coFactorTrue(true_id, true_id), true_id);
+    EXPECT_EQ(manager.coFactorTrue(true_id, false_id), true_id);
+    EXPECT_EQ(manager.coFactorTrue(true_id, a_id), true_id);
+    EXPECT_EQ(manager.coFactorTrue(false_id, true_id), false_id);
+    EXPECT_EQ(manager.coFactorTrue(false_id, false_id), false_id);
+    EXPECT_EQ(manager.coFactorTrue(false_id, a_id), false_id);
+    EXPECT_EQ(manager.coFactorTrue(a_id, true_id), a_id);
+    EXPECT_EQ(manager.coFactorTrue(a_id, false_id), a_id);
+    EXPECT_EQ(manager.coFactorTrue(a_id, a_id), true_id);
+
+    //TODO: test function nodes when logical functions are implemented
+}
+
+// Manager::coFactorFalse() test
+TEST_F(ManagerTest, CoFactorFalse)
+{
+    const BDD_ID a_id = manager.createVar("a");
+
+    // Call with single argument.
+    EXPECT_EQ(manager.coFactorFalse(true_id), true_id);
+    EXPECT_EQ(manager.coFactorFalse(false_id), false_id);
+    EXPECT_EQ(manager.coFactorFalse(a_id), false_id);
+
+    // Call with two arguments.
+    EXPECT_EQ(manager.coFactorFalse(true_id, true_id), true_id);
+    EXPECT_EQ(manager.coFactorFalse(true_id, false_id), true_id);
+    EXPECT_EQ(manager.coFactorFalse(true_id, a_id), true_id);
+    EXPECT_EQ(manager.coFactorFalse(false_id, true_id), false_id);
+    EXPECT_EQ(manager.coFactorFalse(false_id, false_id), false_id);
+    EXPECT_EQ(manager.coFactorFalse(false_id, a_id), false_id);
+    EXPECT_EQ(manager.coFactorFalse(a_id, true_id), a_id);
+    EXPECT_EQ(manager.coFactorFalse(a_id, false_id), a_id);
+    EXPECT_EQ(manager.coFactorFalse(a_id, a_id), false_id);
+
+    //TODO: test function nodes when logical functions are implemented
+}
+
 #endif
