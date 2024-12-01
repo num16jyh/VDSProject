@@ -21,11 +21,13 @@ namespace ClassProject {
     }
 
 
-const BDD_ID &Manager::True()
-{}
+    const BDD_ID &Manager::True() {
+        return trueID;
+    }
 
-const BDD_ID &Manager::False()
-{}
+    const BDD_ID &Manager::False() {
+        return falseID;
+    }
 
 bool Manager::isConstant(BDD_ID f)
 {}
