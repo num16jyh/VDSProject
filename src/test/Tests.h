@@ -79,6 +79,26 @@ TEST_F(ManagerTest, IsVariable)
         EXPECT_TRUE(manager.isVariable(i));
 }
 
+// Manager::topVar() test
+TEST_F(ManagerTest, TopVar)
+{
+    // Leaf variables return their own ID.
+    EXPECT_EQ(manager.topVar(true_id), true_id);
+    EXPECT_EQ(manager.topVar(false_id), false_id);
+
+    // Variables added by createVar(), i.e. non-function nodes must return their
+    // own ID; will add variables up to this ID.
+    const BDD_ID testIDs = 100;
+
+    for (BDD_ID i = first_var_id; i <= testIDs; i++)
+        manager.createVar(::std::to_string(i));
+
+    for (BDD_ID i = 0; i <= testIDs; i++)
+        EXPECT_EQ(manager.topVar(i), i);
+
+    //TODO: test with logical operations when these are implemented
+}
+
 // Manager::coFactorTrue() test
 TEST_F(ManagerTest, CoFactorTrue)
 {
