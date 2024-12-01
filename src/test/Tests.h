@@ -39,4 +39,16 @@ TEST_F(ManagerTest, CreateVar)
         EXPECT_EQ(manager.createVar(::std::to_string(i)), i);
 }
 
+// Manager::True() test
+TEST_F(ManagerTest, True)
+{
+    EXPECT_EQ(manager.True(), true_id);
+}
+
+// Manager::False() test
+TEST_F(ManagerTest, False)
+{
+    EXPECT_EQ(manager.False(), false_id);
+}
+
 #endif
