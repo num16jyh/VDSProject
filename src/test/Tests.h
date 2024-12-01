@@ -51,4 +51,32 @@ TEST_F(ManagerTest, False)
     EXPECT_EQ(manager.False(), false_id);
 }
 
+// Manager::isConstant() test
+TEST_F(ManagerTest, IsConstant)
+{
+    // True and False are leaf nodes / constants.
+    EXPECT_TRUE(manager.isConstant(true_id));
+    EXPECT_TRUE(manager.isConstant(false_id));
+
+    // All other IDs are not constants; will check up to this ID.
+    const BDD_ID testIDs = 100;
+
+    for (BDD_ID i = first_var_id; i <= testIDs; i++)
+        EXPECT_FALSE(manager.isConstant(i));
+}
+
+// Manager::isVariable() test
+TEST_F(ManagerTest, IsVariable)
+{
+    // True and False are leaf nodes / constants, so not variables.
+    EXPECT_FALSE(manager.isVariable(true_id));
+    EXPECT_FALSE(manager.isVariable(false_id));
+
+    // All other IDs are variables; will check up to this ID.
+    const BDD_ID testIDs = 100;
+
+    for (BDD_ID i = first_var_id; i <= testIDs; i++)
+        EXPECT_TRUE(manager.isVariable(i));
+}
+
 #endif
