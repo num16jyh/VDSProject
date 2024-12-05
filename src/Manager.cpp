@@ -33,7 +33,14 @@ bool Manager::isConstant(BDD_ID f)
 
 bool Manager::isVariable(BDD_ID x)
 {
-    return (x != trueID && x != falseID);
+    if (x == trueID || x == falseID)
+        return false;
+
+    for (const auto &node : uniqueTable)
+        if (node.id == x)
+            return true;
+
+    return false;
 }
 
 BDD_ID Manager::topVar(BDD_ID f)
@@ -45,7 +52,8 @@ BDD_ID Manager::topVar(BDD_ID f)
             return node.topVar;
         }
     }
-    return falseID;
+
+    return f;
 }
 
 BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
@@ -63,7 +71,8 @@ BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x)
             return node.high;
         }
     }
-    return falseID;
+
+    return f;
 }
 
 BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
@@ -78,7 +87,8 @@ BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
             return node.low;
         }
     }
-    return falseID;
+
+    return f;
 }
 
 BDD_ID Manager::coFactorTrue(BDD_ID f)
@@ -127,4 +137,4 @@ size_t Manager::uniqueTableSize()
 void Manager::visualizeBDD(std::string filepath, BDD_ID &root)
 {}
 
-} // namespace ClassProject
+}  // namespace ClassProject
