@@ -22,16 +22,13 @@ public:
 // Manager::createVar() test
 TEST_F(ManagerTest, CreateVar)
 {
-    // Will try adding variables up to this ID.
-    const BDD_ID testIDs = 100;
-
-    // Start with an ID of 2 since IDs 0 and 1 must already be assigned to the
+    // Starts with an ID of 2 since IDs 0 and 1 must already be assigned to the
     // leaf nodes False and True respectively.
-    for (BDD_ID i = first_var_id; i <= testIDs; i++)
-        EXPECT_EQ(manager.createVar(::std::to_string(i)), i);
+    const BDD_ID a_id = manager.createVar("a");
+    EXPECT_EQ(a_id, first_var_id);
 
     // Labels are not unique.
-    EXPECT_EQ(manager.createVar(::std::to_string(testIDs)), testIDs + 1);
+    EXPECT_EQ(manager.createVar("a"), a_id + 1);
 }
 
 // Manager::True() test
@@ -53,11 +50,13 @@ TEST_F(ManagerTest, IsConstant)
     EXPECT_TRUE(manager.isConstant(true_id));
     EXPECT_TRUE(manager.isConstant(false_id));
 
-    // All other IDs are not constants; will check up to this ID.
-    const BDD_ID testIDs = 100;
+    // IDs returned by createVar() are not constants.
+    const BDD_ID a_id = manager.createVar("a");
+    EXPECT_FALSE(manager.isConstant(a_id));
 
-    for (BDD_ID i = first_var_id; i <= testIDs; i++)
-        EXPECT_FALSE(manager.isConstant(i));
+    // Non-existent IDs are not constants.
+    const BDD_ID nonexistent_id = a_id + 1;
+    EXPECT_FALSE(manager.isConstant(nonexistent_id));
 }
 
 // Manager::isVariable() test
@@ -67,11 +66,13 @@ TEST_F(ManagerTest, IsVariable)
     EXPECT_FALSE(manager.isVariable(true_id));
     EXPECT_FALSE(manager.isVariable(false_id));
 
-    // All other IDs are variables; will check up to this ID.
-    const BDD_ID testIDs = 100;
+    // IDs returned by createVar() are variables.
+    const BDD_ID a_id = manager.createVar("a");
+    EXPECT_TRUE(manager.isVariable(a_id));
 
-    for (BDD_ID i = first_var_id; i <= testIDs; i++)
-        EXPECT_TRUE(manager.isVariable(i));
+    // Non-existent IDs are not variables.
+    const BDD_ID nonexistent_id = a_id + 1;
+    EXPECT_FALSE(manager.isVariable(nonexistent_id));
 }
 
 // Manager::topVar() test
@@ -81,15 +82,14 @@ TEST_F(ManagerTest, TopVar)
     EXPECT_EQ(manager.topVar(true_id), true_id);
     EXPECT_EQ(manager.topVar(false_id), false_id);
 
-    // Variables added by createVar(), i.e. non-function nodes must return their
-    // own ID; will add variables up to this ID.
-    const BDD_ID testIDs = 100;
+    // Variables added using createVar(), i.e. non-function nodes must return
+    // their own ID.
+    const BDD_ID a_id = manager.createVar("a");
+    EXPECT_EQ(manager.topVar(a_id), a_id);
 
-    for (BDD_ID i = first_var_id; i <= testIDs; i++)
-        manager.createVar(::std::to_string(i));
-
-    for (BDD_ID i = 0; i <= testIDs; i++)
-        EXPECT_EQ(manager.topVar(i), i);
+    // Passing as argument a non-existent ID should return the argument value.
+    const BDD_ID nonexistent_id = a_id + 1;
+    EXPECT_EQ(manager.topVar(nonexistent_id), nonexistent_id);
 
     //TODO: test with logical operations when these are implemented
 }
@@ -98,11 +98,15 @@ TEST_F(ManagerTest, TopVar)
 TEST_F(ManagerTest, CoFactorTrue)
 {
     const BDD_ID a_id = manager.createVar("a");
+    const BDD_ID nonexistent_id = a_id + 1;
 
     // Call with single argument.
     EXPECT_EQ(manager.coFactorTrue(true_id), true_id);
     EXPECT_EQ(manager.coFactorTrue(false_id), false_id);
     EXPECT_EQ(manager.coFactorTrue(a_id), true_id);
+
+    // Call with single non-existent ID argument. Return the argument.
+    EXPECT_EQ(manager.coFactorTrue(nonexistent_id), nonexistent_id);
 
     // Call with two arguments.
     EXPECT_EQ(manager.coFactorTrue(true_id, true_id), true_id);
@@ -115,6 +119,10 @@ TEST_F(ManagerTest, CoFactorTrue)
     EXPECT_EQ(manager.coFactorTrue(a_id, false_id), a_id);
     EXPECT_EQ(manager.coFactorTrue(a_id, a_id), true_id);
 
+    // Call with two arguments where the function ID does not exist. Return the
+    // function ID argument.
+    EXPECT_EQ(manager.coFactorTrue(nonexistent_id, a_id), nonexistent_id);
+
     //TODO: test function nodes when logical functions are implemented
 }
 
@@ -122,11 +130,15 @@ TEST_F(ManagerTest, CoFactorTrue)
 TEST_F(ManagerTest, CoFactorFalse)
 {
     const BDD_ID a_id = manager.createVar("a");
+    const BDD_ID nonexistent_id = a_id + 1;
 
     // Call with single argument.
     EXPECT_EQ(manager.coFactorFalse(true_id), true_id);
     EXPECT_EQ(manager.coFactorFalse(false_id), false_id);
     EXPECT_EQ(manager.coFactorFalse(a_id), false_id);
+
+    // Call with single non-existent ID argument. Return the argument.
+    EXPECT_EQ(manager.coFactorFalse(nonexistent_id), nonexistent_id);
 
     // Call with two arguments.
     EXPECT_EQ(manager.coFactorFalse(true_id, true_id), true_id);
@@ -138,6 +150,10 @@ TEST_F(ManagerTest, CoFactorFalse)
     EXPECT_EQ(manager.coFactorFalse(a_id, true_id), a_id);
     EXPECT_EQ(manager.coFactorFalse(a_id, false_id), a_id);
     EXPECT_EQ(manager.coFactorFalse(a_id, a_id), false_id);
+
+    // Call with two arguments where the function ID does not exist. Return the
+    // function ID argument.
+    EXPECT_EQ(manager.coFactorFalse(nonexistent_id, a_id), nonexistent_id);
 
     //TODO: test function nodes when logical functions are implemented
 }
