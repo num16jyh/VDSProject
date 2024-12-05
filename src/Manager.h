@@ -6,9 +6,10 @@
 #define VDSPROJECT_MANAGER_H
 
 #include "ManagerInterface.h"
-#include <unordered_map>
+#include <cstdint>
+#include <unordered_set>
+#include <vector>
 #include <string>
-#include <set>
 
 namespace ClassProject {
 
@@ -66,36 +67,56 @@ public:
     void visualizeBDD(std::string filepath, BDD_ID &root) override;
 
 private:
-    struct Node
+    struct TableEntry
     {
-        BDD_ID id;
+        string label;
+        BDD_ID id = 0;
         BDD_ID high;
         BDD_ID low;
-        BDD_ID topVar;
-        string varName;
+        BDD_ID top;
 
-        bool operator<(const Node &other) const
+        // For lookup by triple.
+        bool operator==(const TableEntry &other) const
         {
-            return id < other.id;
+            return (high == other.high) && (low == other.low) && (top == other.top);
         }
-
-        Node(BDD_ID id, BDD_ID high, BDD_ID low, BDD_ID topVar, const string &name = "")
-            : id(id),
-              high(high),
-              low(low),
-              topVar(topVar),
-              varName(name)
-        {}
     };
 
-    // Data members
-    std::set<Node> uniqueTable;
-    const BDD_ID falseID = 0;
-    const BDD_ID trueID = 1;
+    struct TableEntryHash
+    {
+        size_t operator()(const TableEntry& entry) const noexcept
+        {
+            // Combine the 21 least significant bits of high, low, and top IDs
+            // into a single 64-bit unsigned integer in order to only hash once.
+            // This causes ID values >= 2 ^ 21 (2097152) to break functionality.
+            // In the presence of such IDs, the OBDD will not be properly
+            // reduced.
+            const size_t shift = 21;
+            const uint64_t mask_lsb = 0x01FFFFFu;
+
+            uint64_t three_in_one = entry.top & mask_lsb;
+            three_in_one |= (entry.high & mask_lsb) << shift;
+            three_in_one |= (entry.low & mask_lsb) << (2 * shift);
+
+            return hash<uint64_t>{}(three_in_one);
+        }
+    };
 
 protected:
+    //TODO: Data is duplicated, may or may not benefit performance, will see.
+    vector<TableEntry> table_vector; // for lookup by ID
+    unordered_set<TableEntry, TableEntryHash> table_set; // for lookup by triple
+
+    void addTableEntry(const TableEntry &new_entry)
+    {
+        table_vector.push_back(new_entry);
+        table_set.insert(new_entry);
+    }
+
+    const BDD_ID falseID = 0;
+    const BDD_ID trueID = 1;
 };
 
-} // namespace ClassProject
+}  // namespace ClassProject
 
 #endif

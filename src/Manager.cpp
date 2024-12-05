@@ -1,18 +1,23 @@
 #include "Manager.h"
 
 namespace ClassProject {
+
 Manager::Manager()
 {
-    // Initialize the uniqueTable with False and True nodes
-    uniqueTable.insert({falseID, 0, 0, falseID, "False"}); // Correct label
-    uniqueTable.insert({trueID, 1, 1, trueID, "True"}); // Correct label
+    // Initialize table with False and True nodes.
+    const TableEntry false_entry = {"False", falseID, falseID, falseID, falseID};
+    addTableEntry(false_entry);
+
+    const TableEntry true_entry = {"True", trueID, trueID, trueID, trueID};
+    addTableEntry(true_entry);
 }
 
 BDD_ID Manager::createVar(const std::string &label)
 {
-    // Create a new variable
-    BDD_ID id = uniqueTable.size();
-    uniqueTable.insert({id, trueID, falseID, id, label}); // Use 'label' to initialize 'varname'
+    const BDD_ID id = table_vector.size();
+    const TableEntry new_entry = {label, id, trueID, falseID, id};
+    addTableEntry(new_entry);
+
     return id;
 }
 
@@ -36,22 +41,13 @@ bool Manager::isVariable(BDD_ID x)
     if (x == trueID || x == falseID)
         return false;
 
-    for (const auto &node : uniqueTable)
-        if (node.id == x)
-            return true;
-
-    return false;
+    return x < table_vector.size();
 }
 
 BDD_ID Manager::topVar(BDD_ID f)
 {
-    for (const auto &node : uniqueTable)
-    {
-        if (node.id == f)
-        {
-            return node.topVar;
-        }
-    }
+    if (f < table_vector.size())
+        return table_vector[f].top;
 
     return f;
 }
@@ -64,13 +60,8 @@ BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x)
     if (isConstant(f) || topVar(f) != x)
         return f;
 
-    for (const auto &node : uniqueTable)
-    {
-        if (node.id == f)
-        {
-            return node.high;
-        }
-    }
+    if (f < table_vector.size())
+        return table_vector[f].high;
 
     return f;
 }
@@ -80,13 +71,8 @@ BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
     if (isConstant(f) || topVar(f) != x)
         return f;
 
-    for (const auto &node : uniqueTable)
-    {
-        if (node.id == f)
-        {
-            return node.low;
-        }
-    }
+    if (f < table_vector.size())
+        return table_vector[f].low;
 
     return f;
 }
@@ -137,4 +123,4 @@ size_t Manager::uniqueTableSize()
 void Manager::visualizeBDD(std::string filepath, BDD_ID &root)
 {}
 
-}  // namespace ClassProject
+} // namespace ClassProject
