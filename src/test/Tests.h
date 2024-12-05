@@ -30,13 +30,8 @@ TEST_F(ManagerTest, CreateVar)
     for (BDD_ID i = first_var_id; i <= testIDs; i++)
         EXPECT_EQ(manager.createVar(::std::to_string(i)), i);
 
-    // Attempting to add a label that already exists should return its already
-    // assigned ID.
-    EXPECT_EQ(manager.createVar("False"), false_id);
-    EXPECT_EQ(manager.createVar("True"), true_id);
-
-    for (BDD_ID i = first_var_id; i <= testIDs; i++)
-        EXPECT_EQ(manager.createVar(::std::to_string(i)), i);
+    // Labels are not unique.
+    EXPECT_EQ(manager.createVar(::std::to_string(testIDs)), testIDs + 1);
 }
 
 // Manager::True() test
