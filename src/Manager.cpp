@@ -10,15 +10,6 @@ Manager::Manager()
 
 BDD_ID Manager::createVar(const std::string &label)
 {
-    // Check if the variable name (label) already exists
-    for (const auto &node : uniqueTable)
-    {
-        if (node.varName == label)
-        { // Use 'varname' instead of 'label'
-            return node.id; // Return the existing ID
-        }
-    }
-
     // Create a new variable
     BDD_ID id = uniqueTable.size();
     uniqueTable.insert({id, trueID, falseID, id, label}); // Use 'label' to initialize 'varname'
