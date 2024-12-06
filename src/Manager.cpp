@@ -1,4 +1,5 @@
 #include "Manager.h"
+#include <algorithm>
 
 namespace ClassProject {
 
@@ -53,7 +54,34 @@ BDD_ID Manager::topVar(BDD_ID f)
 }
 
 BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
-{}
+{
+    if (i == TRUE_ID)
+        return t;
+
+    if (i == FALSE_ID)
+        return e;
+
+    const BDD_ID x = topVar(i);
+    const BDD_ID high = ite(coFactorTrue(i), coFactorTrue(t, x), coFactorTrue(e, x));
+    const BDD_ID low = ite(coFactorFalse(i), coFactorFalse(t, x), coFactorFalse(e, x));
+
+    if (high == low) // reduce
+        return high;
+
+    const BDD_ID id = table_vector.size();
+
+    const TableEntry entry = {.id = id, .high = high, .low = low, .top = x};
+
+    auto ret = table_set.insert(entry); // will insert only if top/high/low triple does not exist
+
+    if (ret.second) // was inserted
+    {
+        table_vector.push_back(entry);
+        return id;
+    }
+
+    return ret.first->id; // was not inserted, already existed
+}
 
 BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x)
 {
