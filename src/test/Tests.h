@@ -14,9 +14,9 @@ class ManagerTest : public ::testing::Test
 {
 public:
     ClassProject::Manager manager;
-    const BDD_ID first_var_id = 2;
-    const BDD_ID true_id = 1;
-    const BDD_ID false_id = 0;
+    const BDD_ID FIRST_VAR_ID = 2;
+    const BDD_ID TRUE_ID = 1;
+    const BDD_ID FALSE_ID = 0;
 };
 
 // Manager::createVar() test
@@ -25,7 +25,7 @@ TEST_F(ManagerTest, CreateVar)
     // Starts with an ID of 2 since IDs 0 and 1 must already be assigned to the
     // leaf nodes False and True respectively.
     const BDD_ID a_id = manager.createVar("a");
-    EXPECT_EQ(a_id, first_var_id);
+    EXPECT_EQ(a_id, FIRST_VAR_ID);
 
     // Labels are not unique.
     EXPECT_EQ(manager.createVar("a"), a_id + 1);
@@ -34,21 +34,21 @@ TEST_F(ManagerTest, CreateVar)
 // Manager::True() test
 TEST_F(ManagerTest, True)
 {
-    EXPECT_EQ(manager.True(), true_id);
+    EXPECT_EQ(manager.True(), TRUE_ID);
 }
 
 // Manager::False() test
 TEST_F(ManagerTest, False)
 {
-    EXPECT_EQ(manager.False(), false_id);
+    EXPECT_EQ(manager.False(), FALSE_ID);
 }
 
 // Manager::isConstant() test
 TEST_F(ManagerTest, IsConstant)
 {
     // True and False are leaf nodes / constants.
-    EXPECT_TRUE(manager.isConstant(true_id));
-    EXPECT_TRUE(manager.isConstant(false_id));
+    EXPECT_TRUE(manager.isConstant(TRUE_ID));
+    EXPECT_TRUE(manager.isConstant(FALSE_ID));
 
     // IDs returned by createVar() are not constants.
     const BDD_ID a_id = manager.createVar("a");
@@ -63,8 +63,8 @@ TEST_F(ManagerTest, IsConstant)
 TEST_F(ManagerTest, IsVariable)
 {
     // True and False are leaf nodes / constants, so not variables.
-    EXPECT_FALSE(manager.isVariable(true_id));
-    EXPECT_FALSE(manager.isVariable(false_id));
+    EXPECT_FALSE(manager.isVariable(TRUE_ID));
+    EXPECT_FALSE(manager.isVariable(FALSE_ID));
 
     // IDs returned by createVar() are variables.
     const BDD_ID a_id = manager.createVar("a");
@@ -79,8 +79,8 @@ TEST_F(ManagerTest, IsVariable)
 TEST_F(ManagerTest, TopVar)
 {
     // Leaf variables return their own ID.
-    EXPECT_EQ(manager.topVar(true_id), true_id);
-    EXPECT_EQ(manager.topVar(false_id), false_id);
+    EXPECT_EQ(manager.topVar(TRUE_ID), TRUE_ID);
+    EXPECT_EQ(manager.topVar(FALSE_ID), FALSE_ID);
 
     // Variables added using createVar(), i.e. non-function nodes must return
     // their own ID.
@@ -101,23 +101,23 @@ TEST_F(ManagerTest, CoFactorTrue)
     const BDD_ID nonexistent_id = a_id + 1;
 
     // Call with single argument.
-    EXPECT_EQ(manager.coFactorTrue(true_id), true_id);
-    EXPECT_EQ(manager.coFactorTrue(false_id), false_id);
-    EXPECT_EQ(manager.coFactorTrue(a_id), true_id);
+    EXPECT_EQ(manager.coFactorTrue(TRUE_ID), TRUE_ID);
+    EXPECT_EQ(manager.coFactorTrue(FALSE_ID), FALSE_ID);
+    EXPECT_EQ(manager.coFactorTrue(a_id), TRUE_ID);
 
     // Call with single non-existent ID argument. Return the argument.
     EXPECT_EQ(manager.coFactorTrue(nonexistent_id), nonexistent_id);
 
     // Call with two arguments.
-    EXPECT_EQ(manager.coFactorTrue(true_id, true_id), true_id);
-    EXPECT_EQ(manager.coFactorTrue(true_id, false_id), true_id);
-    EXPECT_EQ(manager.coFactorTrue(true_id, a_id), true_id);
-    EXPECT_EQ(manager.coFactorTrue(false_id, true_id), false_id);
-    EXPECT_EQ(manager.coFactorTrue(false_id, false_id), false_id);
-    EXPECT_EQ(manager.coFactorTrue(false_id, a_id), false_id);
-    EXPECT_EQ(manager.coFactorTrue(a_id, true_id), a_id);
-    EXPECT_EQ(manager.coFactorTrue(a_id, false_id), a_id);
-    EXPECT_EQ(manager.coFactorTrue(a_id, a_id), true_id);
+    EXPECT_EQ(manager.coFactorTrue(TRUE_ID, TRUE_ID), TRUE_ID);
+    EXPECT_EQ(manager.coFactorTrue(TRUE_ID, FALSE_ID), TRUE_ID);
+    EXPECT_EQ(manager.coFactorTrue(TRUE_ID, a_id), TRUE_ID);
+    EXPECT_EQ(manager.coFactorTrue(FALSE_ID, TRUE_ID), FALSE_ID);
+    EXPECT_EQ(manager.coFactorTrue(FALSE_ID, FALSE_ID), FALSE_ID);
+    EXPECT_EQ(manager.coFactorTrue(FALSE_ID, a_id), FALSE_ID);
+    EXPECT_EQ(manager.coFactorTrue(a_id, TRUE_ID), a_id);
+    EXPECT_EQ(manager.coFactorTrue(a_id, FALSE_ID), a_id);
+    EXPECT_EQ(manager.coFactorTrue(a_id, a_id), TRUE_ID);
 
     // Call with two arguments where the function ID does not exist. Return the
     // function ID argument.
@@ -133,23 +133,23 @@ TEST_F(ManagerTest, CoFactorFalse)
     const BDD_ID nonexistent_id = a_id + 1;
 
     // Call with single argument.
-    EXPECT_EQ(manager.coFactorFalse(true_id), true_id);
-    EXPECT_EQ(manager.coFactorFalse(false_id), false_id);
-    EXPECT_EQ(manager.coFactorFalse(a_id), false_id);
+    EXPECT_EQ(manager.coFactorFalse(TRUE_ID), TRUE_ID);
+    EXPECT_EQ(manager.coFactorFalse(FALSE_ID), FALSE_ID);
+    EXPECT_EQ(manager.coFactorFalse(a_id), FALSE_ID);
 
     // Call with single non-existent ID argument. Return the argument.
     EXPECT_EQ(manager.coFactorFalse(nonexistent_id), nonexistent_id);
 
     // Call with two arguments.
-    EXPECT_EQ(manager.coFactorFalse(true_id, true_id), true_id);
-    EXPECT_EQ(manager.coFactorFalse(true_id, false_id), true_id);
-    EXPECT_EQ(manager.coFactorFalse(true_id, a_id), true_id);
-    EXPECT_EQ(manager.coFactorFalse(false_id, true_id), false_id);
-    EXPECT_EQ(manager.coFactorFalse(false_id, false_id), false_id);
-    EXPECT_EQ(manager.coFactorFalse(false_id, a_id), false_id);
-    EXPECT_EQ(manager.coFactorFalse(a_id, true_id), a_id);
-    EXPECT_EQ(manager.coFactorFalse(a_id, false_id), a_id);
-    EXPECT_EQ(manager.coFactorFalse(a_id, a_id), false_id);
+    EXPECT_EQ(manager.coFactorFalse(TRUE_ID, TRUE_ID), TRUE_ID);
+    EXPECT_EQ(manager.coFactorFalse(TRUE_ID, FALSE_ID), TRUE_ID);
+    EXPECT_EQ(manager.coFactorFalse(TRUE_ID, a_id), TRUE_ID);
+    EXPECT_EQ(manager.coFactorFalse(FALSE_ID, TRUE_ID), FALSE_ID);
+    EXPECT_EQ(manager.coFactorFalse(FALSE_ID, FALSE_ID), FALSE_ID);
+    EXPECT_EQ(manager.coFactorFalse(FALSE_ID, a_id), FALSE_ID);
+    EXPECT_EQ(manager.coFactorFalse(a_id, TRUE_ID), a_id);
+    EXPECT_EQ(manager.coFactorFalse(a_id, FALSE_ID), a_id);
+    EXPECT_EQ(manager.coFactorFalse(a_id, a_id), FALSE_ID);
 
     // Call with two arguments where the function ID does not exist. Return the
     // function ID argument.

@@ -6,6 +6,7 @@
 #define VDSPROJECT_MANAGER_H
 
 #include "ManagerInterface.h"
+
 #include <cstdint>
 #include <unordered_set>
 #include <vector>
@@ -113,10 +114,10 @@ protected:
         table_set.insert(new_entry);
     }
 
-    const BDD_ID falseID = 0;
-    const BDD_ID trueID = 1;
+    const BDD_ID FALSE_ID = 0;
+    const BDD_ID TRUE_ID = 1;
 };
 
-}  // namespace ClassProject
+} // namespace ClassProject
 
 #endif

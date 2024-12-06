@@ -5,17 +5,17 @@ namespace ClassProject {
 Manager::Manager()
 {
     // Initialize table with False and True nodes.
-    const TableEntry false_entry = {"False", falseID, falseID, falseID, falseID};
+    const TableEntry false_entry = {"False", FALSE_ID, FALSE_ID, FALSE_ID, FALSE_ID};
     addTableEntry(false_entry);
 
-    const TableEntry true_entry = {"True", trueID, trueID, trueID, trueID};
+    const TableEntry true_entry = {"True", TRUE_ID, TRUE_ID, TRUE_ID, TRUE_ID};
     addTableEntry(true_entry);
 }
 
 BDD_ID Manager::createVar(const std::string &label)
 {
     const BDD_ID id = table_vector.size();
-    const TableEntry new_entry = {label, id, trueID, falseID, id};
+    const TableEntry new_entry = {label, id, TRUE_ID, FALSE_ID, id};
     addTableEntry(new_entry);
 
     return id;
@@ -23,22 +23,22 @@ BDD_ID Manager::createVar(const std::string &label)
 
 const BDD_ID &Manager::True()
 {
-    return trueID;
+    return TRUE_ID;
 }
 
 const BDD_ID &Manager::False()
 {
-    return falseID;
+    return FALSE_ID;
 }
 
 bool Manager::isConstant(BDD_ID f)
 {
-    return (f == trueID || f == falseID);
+    return (f == TRUE_ID || f == FALSE_ID);
 }
 
 bool Manager::isVariable(BDD_ID x)
 {
-    if (x == trueID || x == falseID)
+    if (x == TRUE_ID || x == FALSE_ID)
         return false;
 
     return x < table_vector.size();
