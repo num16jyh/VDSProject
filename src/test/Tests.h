@@ -158,4 +158,27 @@ TEST_F(ManagerTest, CoFactorFalse)
     //TODO: test function nodes when logical functions are implemented
 }
 
+// Manager::ite() test
+TEST_F(ManagerTest, Ite)
+{
+    const BDD_ID a_id = manager.createVar("a");
+    const BDD_ID b_id = manager.createVar("b");
+    const BDD_ID c_id = manager.createVar("c");
+    const BDD_ID next_id = c_id + 1;
+
+    // True condition.
+    EXPECT_EQ(manager.ite(TRUE_ID, a_id, b_id), a_id);
+
+    // False condition.
+    EXPECT_EQ(manager.ite(FALSE_ID, a_id, b_id), b_id);
+
+    // Non-leaf node condition. Results in the creation of a new table entry.
+    EXPECT_EQ(manager.ite(a_id, b_id, c_id), next_id);
+    EXPECT_EQ(manager.topVar(next_id), a_id);
+    EXPECT_EQ(manager.coFactorTrue(next_id), b_id);
+    EXPECT_EQ(manager.coFactorFalse(next_id), c_id);
+
+    //TODO: test logical functions when implemented
+}
+
 #endif
