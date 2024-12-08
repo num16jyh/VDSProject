@@ -42,7 +42,7 @@ bool Manager::isVariable(BDD_ID x)
     if (x == TRUE_ID || x == FALSE_ID)
         return false;
 
-    return x < table_vector.size();
+    return (x < table_vector.size()) && (x == topVar(x));
 }
 
 BDD_ID Manager::topVar(BDD_ID f)
