@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 #include "../Manager.h"
+#include <fstream>
 
 using ClassProject::BDD_ID;
 
@@ -472,6 +473,24 @@ TEST_F(ManagerTest, UniqueTableSize)
         size++;
         EXPECT_EQ(manager.uniqueTableSize(), size);
     }
+}
+
+// Manager::visualizeBDD() test
+TEST_F(ManagerTest, VisualizeBDD)
+{
+    const std::string filepath = "BDD.dot";
+    const BDD_ID a_id = manager.createVar("a");
+    const BDD_ID b_id = manager.createVar("b");
+    const BDD_ID c_id = manager.createVar("c");
+    const BDD_ID d_id = manager.createVar("d");
+
+    BDD_ID f_id = manager.and2(manager.or2(a_id, b_id), manager.and2(c_id, d_id));
+    //BDD_ID f_id = manager.nor2(b_id, a_id);
+
+    manager.visualizeBDD(filepath, f_id);
+
+    std::ifstream file(filepath);
+    EXPECT_TRUE(file.is_open());
 }
 
 #endif
