@@ -160,16 +160,44 @@ BDD_ID Manager::xnor2(BDD_ID a, BDD_ID b)
 }
 
 std::string Manager::getTopVarName(const BDD_ID &root)
-{}
+{
+    const BDD_ID top_id = topVar(root);
+
+    if (top_id >= table_vector.size())
+        return "UNKNOWN";
+
+    return table_vector[top_id].label;
+}
 
 void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root)
-{}
+{
+    nodes_of_root.insert(root);
+
+    if (!isConstant(root))
+    {
+        findNodes(coFactorTrue(root), nodes_of_root);
+        findNodes(coFactorFalse(root), nodes_of_root);
+    }
+}
 
 void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root)
-{}
+{
+    if (!isConstant(root))
+    {
+        vars_of_root.insert(topVar(root));
+
+        if (root != topVar(root))
+        {
+            findVars(coFactorTrue(root), vars_of_root);
+            findVars(coFactorFalse(root), vars_of_root);
+        }
+    }
+}
 
 size_t Manager::uniqueTableSize()
-{}
+{
+    return table_vector.size();
+}
 
 void Manager::visualizeBDD(std::string filepath, BDD_ID &root)
 {}
