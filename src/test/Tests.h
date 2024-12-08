@@ -379,4 +379,99 @@ TEST_F(ManagerTest, Xnor2)
     EXPECT_EQ(manager.coFactorFalse(xnor_id), manager.neg(b_id));
 }
 
+// Manager::getTopVarName() test
+TEST_F(ManagerTest, GetTopVarName)
+{
+    const BDD_ID a_id = manager.createVar("a");
+    const BDD_ID b_id = manager.createVar("b");
+    const BDD_ID op_id = manager.and2(a_id, b_id);
+
+    EXPECT_EQ(manager.getTopVarName(a_id), "a");
+    EXPECT_EQ(manager.getTopVarName(b_id), "b");
+    EXPECT_EQ(manager.getTopVarName(op_id), "a");
+}
+
+// Manager::findNodes() test
+TEST_F(ManagerTest, FindNodes)
+{
+    const BDD_ID a_id = manager.createVar("a");
+    const BDD_ID b_id = manager.createVar("b");
+    const BDD_ID c_id = manager.createVar("c");
+    const BDD_ID d_id = manager.createVar("d");
+    const BDD_ID op_id = manager.and2(manager.nor2(a_id, b_id), manager.xor2(c_id, d_id));
+
+    std::set<BDD_ID> nodes;
+    manager.findNodes(op_id, nodes);
+
+    // Checks presence of all reachable nodes of a function in the nodes set.
+    // Returns true if all present, false otherwise.
+    std::function<bool(BDD_ID)> f = [&](BDD_ID id) -> bool {
+        if (!nodes.count(id))
+            return false;
+
+        if (!manager.isConstant(id))
+        {
+            if (!f(manager.coFactorTrue(id)))
+                return false;
+
+            if (!f(manager.coFactorFalse(id)))
+                return false;
+        }
+
+        return true;
+    };
+
+    EXPECT_TRUE(f(op_id));
+}
+
+// Manager::findVars() test
+TEST_F(ManagerTest, FindVars)
+{
+    const BDD_ID a_id = manager.createVar("a");
+    const BDD_ID b_id = manager.createVar("b");
+    const BDD_ID c_id = manager.createVar("c");
+    const BDD_ID d_id = manager.createVar("d");
+    const BDD_ID op_id = manager.and2(manager.nor2(a_id, b_id), manager.xor2(c_id, d_id));
+
+    std::set<BDD_ID> vars;
+    manager.findVars(op_id, vars);
+
+    // Checks presence of all reachable variables of a function in the variables
+    // set. Returns true if all present, false otherwise.
+    std::function<bool(BDD_ID)> f = [&](BDD_ID id) -> bool {
+        if (!manager.isConstant(id))
+        {
+            if (!vars.count(manager.topVar(id)))
+                return false;
+
+            if (id != manager.topVar(id))
+            {
+                if (!f(manager.coFactorTrue(id)))
+                    return false;
+
+                if (!f(manager.coFactorFalse(id)))
+                    return false;
+            }
+        }
+
+        return true;
+    };
+
+    EXPECT_TRUE(f(op_id));
+}
+
+// Manager::uniqueTableSize() test
+TEST_F(ManagerTest, UniqueTableSize)
+{
+    unsigned int size = 2; // starts with the True and False nodes by default
+
+    // createVar() should only create one node.
+    for (unsigned int i = 0; i < 10; i++)
+    {
+        manager.createVar("");
+        size++;
+        EXPECT_EQ(manager.uniqueTableSize(), size);
+    }
+}
+
 #endif
