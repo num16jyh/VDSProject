@@ -73,6 +73,10 @@ TEST_F(ManagerTest, IsVariable)
     // Non-existent IDs are not variables.
     const BDD_ID nonexistent_id = a_id + 1;
     EXPECT_FALSE(manager.isVariable(nonexistent_id));
+
+    // Function nodes are not variables.
+    const BDD_ID neg_id = manager.neg(a_id);
+    EXPECT_FALSE(manager.isVariable(neg_id));
 }
 
 // Manager::topVar() test
