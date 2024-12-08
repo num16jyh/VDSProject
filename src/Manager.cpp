@@ -116,25 +116,48 @@ BDD_ID Manager::coFactorFalse(BDD_ID f)
 }
 
 BDD_ID Manager::and2(BDD_ID a, BDD_ID b)
-{}
+{
+    if (topVar(a) < topVar(b))
+        return ite(a, b, FALSE_ID);
+
+    return ite(b, a, FALSE_ID);
+}
 
 BDD_ID Manager::or2(BDD_ID a, BDD_ID b)
-{}
+{
+    if (topVar(a) < topVar(b))
+        return ite(a, TRUE_ID, b);
+
+    return ite(b, TRUE_ID, a);
+}
 
 BDD_ID Manager::xor2(BDD_ID a, BDD_ID b)
-{}
+{
+    if (topVar(a) < topVar(b))
+        return ite(a, neg(b), b);
+
+    return ite(b, neg(a), a);
+}
 
 BDD_ID Manager::neg(BDD_ID a)
-{}
+{
+    return ite(a, FALSE_ID, TRUE_ID);
+}
 
 BDD_ID Manager::nand2(BDD_ID a, BDD_ID b)
-{}
+{
+    return neg(and2(a, b));
+}
 
 BDD_ID Manager::nor2(BDD_ID a, BDD_ID b)
-{}
+{
+    return neg(or2(a, b));
+}
 
 BDD_ID Manager::xnor2(BDD_ID a, BDD_ID b)
-{}
+{
+    return neg(xor2(a, b));
+}
 
 std::string Manager::getTopVarName(const BDD_ID &root)
 {}
