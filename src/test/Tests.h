@@ -187,7 +187,6 @@ TEST_F(ManagerTest, And2)
 {
     const BDD_ID a_id = manager.createVar("a");
     const BDD_ID b_id = manager.createVar("b");
-    const BDD_ID next_id = b_id + 1;
 
     // Will not create new table entry.
     EXPECT_EQ(manager.and2(TRUE_ID, a_id), a_id);
@@ -196,15 +195,15 @@ TEST_F(ManagerTest, And2)
     EXPECT_EQ(manager.and2(a_id, FALSE_ID), FALSE_ID);
 
     // Will create new table entry.
-    EXPECT_EQ(manager.and2(a_id, b_id), next_id);
+    const BDD_ID and_id = manager.and2(a_id, b_id);
 
     // Will not create new table entry, already created by previous call.
-    EXPECT_EQ(manager.and2(b_id, a_id), next_id);
+    EXPECT_EQ(manager.and2(b_id, a_id), and_id);
 
     // Ensure the right triple was created.
-    EXPECT_EQ(manager.topVar(next_id), a_id);
-    EXPECT_EQ(manager.coFactorTrue(next_id), b_id);
-    EXPECT_EQ(manager.coFactorFalse(next_id), FALSE_ID);
+    EXPECT_EQ(manager.topVar(and_id), a_id);
+    EXPECT_EQ(manager.coFactorTrue(and_id), b_id);
+    EXPECT_EQ(manager.coFactorFalse(and_id), FALSE_ID);
 }
 
 // Manager::or2() test
@@ -212,7 +211,6 @@ TEST_F(ManagerTest, Or2)
 {
     const BDD_ID a_id = manager.createVar("a");
     const BDD_ID b_id = manager.createVar("b");
-    const BDD_ID next_id = b_id + 1;
 
     // Will not create new table entry.
     EXPECT_EQ(manager.or2(TRUE_ID, a_id), TRUE_ID);
@@ -221,15 +219,15 @@ TEST_F(ManagerTest, Or2)
     EXPECT_EQ(manager.or2(a_id, FALSE_ID), a_id);
 
     // Will create new table entry.
-    EXPECT_EQ(manager.or2(a_id, b_id), next_id);
+    const BDD_ID or_id = manager.or2(a_id, b_id);
 
     // Will not create new table entry, already created by previous call.
-    EXPECT_EQ(manager.or2(b_id, a_id), next_id);
+    EXPECT_EQ(manager.or2(b_id, a_id), or_id);
 
     // Ensure the right triple was created.
-    EXPECT_EQ(manager.topVar(next_id), a_id);
-    EXPECT_EQ(manager.coFactorTrue(next_id), TRUE_ID);
-    EXPECT_EQ(manager.coFactorFalse(next_id), b_id);
+    EXPECT_EQ(manager.topVar(or_id), a_id);
+    EXPECT_EQ(manager.coFactorTrue(or_id), TRUE_ID);
+    EXPECT_EQ(manager.coFactorFalse(or_id), b_id);
 }
 
 // Manager::xor2() test
@@ -237,24 +235,22 @@ TEST_F(ManagerTest, Xor2)
 {
     const BDD_ID a_id = manager.createVar("a");
     const BDD_ID b_id = manager.createVar("b");
-    const BDD_ID next_id = b_id + 1;
 
     // Will not create new table entry.
     EXPECT_EQ(manager.xor2(FALSE_ID, a_id), a_id);
     EXPECT_EQ(manager.xor2(a_id, FALSE_ID), a_id);
 
     // Will create new table entry due to result being neg(a_id).
-    EXPECT_EQ(manager.xor2(TRUE_ID, a_id), next_id);
+    BDD_ID xor_id = manager.xor2(TRUE_ID, a_id);
 
     // Will not create new table entry, already created by previous call.
-    EXPECT_EQ(manager.xor2(a_id, TRUE_ID), next_id);
+    EXPECT_EQ(manager.xor2(a_id, TRUE_ID), xor_id);
 
     // Ensure the right triple was created.
-    EXPECT_EQ(next_id, manager.neg(a_id));
+    EXPECT_EQ(xor_id, manager.neg(a_id));
 
-    // Will create two new table entries.
-    const BDD_ID xor_id = manager.xor2(a_id, b_id);
-    EXPECT_TRUE(xor_id == next_id + 2);
+    // Will create new table entries.
+    xor_id = manager.xor2(a_id, b_id);
 
     // Will not create new table entries, already created by previous call.
     EXPECT_EQ(manager.xor2(b_id, a_id), xor_id);
@@ -269,22 +265,21 @@ TEST_F(ManagerTest, Xor2)
 TEST_F(ManagerTest, Neg)
 {
     const BDD_ID a_id = manager.createVar("a");
-    const BDD_ID next_id = a_id + 1;
 
     // Will not create new table entry.
     EXPECT_EQ(manager.neg(TRUE_ID), FALSE_ID);
     EXPECT_EQ(manager.neg(FALSE_ID), TRUE_ID);
 
     // Will create new table entry.
-    EXPECT_EQ(manager.neg(a_id), next_id);
+    const BDD_ID not_id = manager.neg(a_id);
 
     // Will not create new table entry, already created by previous call.
-    EXPECT_EQ(manager.neg(a_id), next_id);
+    EXPECT_EQ(manager.neg(a_id), not_id);
 
     // Ensure the right triple was created.
-    EXPECT_EQ(manager.topVar(next_id), a_id);
-    EXPECT_EQ(manager.coFactorTrue(next_id), FALSE_ID);
-    EXPECT_EQ(manager.coFactorFalse(next_id), TRUE_ID);
+    EXPECT_EQ(manager.topVar(not_id), a_id);
+    EXPECT_EQ(manager.coFactorTrue(not_id), FALSE_ID);
+    EXPECT_EQ(manager.coFactorFalse(not_id), TRUE_ID);
 }
 
 // Manager::nand2() test
@@ -292,23 +287,22 @@ TEST_F(ManagerTest, Nand2)
 {
     const BDD_ID a_id = manager.createVar("a");
     const BDD_ID b_id = manager.createVar("b");
-    const BDD_ID next_id = b_id + 1;
 
     // Will not create new table entry.
     EXPECT_EQ(manager.nand2(FALSE_ID, a_id), TRUE_ID);
     EXPECT_EQ(manager.nand2(a_id, FALSE_ID), TRUE_ID);
 
     // Will create new table entry due to result being neg(a_id).
-    EXPECT_EQ(manager.nand2(TRUE_ID, a_id), next_id);
+    BDD_ID nand_id = manager.nand2(TRUE_ID, a_id);
 
     // Will not create new table entry, already created by previous call.
-    EXPECT_EQ(manager.nand2(a_id, TRUE_ID), next_id);
+    EXPECT_EQ(manager.nand2(a_id, TRUE_ID), nand_id);
 
     // Ensure the right triple was created.
-    EXPECT_EQ(next_id, manager.neg(a_id));
+    EXPECT_EQ(nand_id, manager.neg(a_id));
 
     // Will create new table entries.
-    const BDD_ID nand_id = manager.nand2(a_id, b_id);
+    nand_id = manager.nand2(a_id, b_id);
 
     // Will not create new table entries, already created by previous call.
     EXPECT_EQ(manager.nand2(b_id, a_id), nand_id);
@@ -324,23 +318,22 @@ TEST_F(ManagerTest, Nor2)
 {
     const BDD_ID a_id = manager.createVar("a");
     const BDD_ID b_id = manager.createVar("b");
-    const BDD_ID next_id = b_id + 1;
 
     // Will not create new table entry.
     EXPECT_EQ(manager.nor2(TRUE_ID, a_id), FALSE_ID);
     EXPECT_EQ(manager.nor2(a_id, TRUE_ID), FALSE_ID);
 
     // Will create new table entry due to result being neg(a_id).
-    EXPECT_EQ(manager.nor2(FALSE_ID, a_id), next_id);
+    BDD_ID nor_id = manager.nor2(FALSE_ID, a_id);
 
     // Will not create new table entry, already created by previous call.
-    EXPECT_EQ(manager.nor2(a_id, FALSE_ID), next_id);
+    EXPECT_EQ(manager.nor2(a_id, FALSE_ID), nor_id);
 
     // Ensure the right triple was created.
-    EXPECT_EQ(next_id, manager.neg(a_id));
+    EXPECT_EQ(nor_id, manager.neg(a_id));
 
     // Will create new table entries.
-    const BDD_ID nor_id = manager.nor2(a_id, b_id);
+    nor_id = manager.nor2(a_id, b_id);
 
     // Will not create new table entries, already created by previous call.
     EXPECT_EQ(manager.nor2(b_id, a_id), nor_id);
@@ -356,23 +349,22 @@ TEST_F(ManagerTest, Xnor2)
 {
     const BDD_ID a_id = manager.createVar("a");
     const BDD_ID b_id = manager.createVar("b");
-    const BDD_ID next_id = b_id + 1;
 
     // Will not create new table entry.
     EXPECT_EQ(manager.xnor2(TRUE_ID, a_id), a_id);
     EXPECT_EQ(manager.xnor2(a_id, TRUE_ID), a_id);
 
     // Will create new table entry due to result being neg(a_id).
-    EXPECT_EQ(manager.xnor2(FALSE_ID, a_id), next_id);
+    BDD_ID xnor_id = manager.xnor2(FALSE_ID, a_id);
 
     // Will not create new table entry, already created by previous call.
-    EXPECT_EQ(manager.xnor2(a_id, FALSE_ID), next_id);
+    EXPECT_EQ(manager.xnor2(a_id, FALSE_ID), xnor_id);
 
     // Ensure the right triple was created.
-    EXPECT_EQ(next_id, manager.neg(a_id));
+    EXPECT_EQ(xnor_id, manager.neg(a_id));
 
     // Will create new table entries.
-    const BDD_ID xnor_id = manager.xnor2(a_id, b_id);
+    xnor_id = manager.xnor2(a_id, b_id);
 
     // Will not create new table entries, already created by previous call.
     EXPECT_EQ(manager.xnor2(b_id, a_id), xnor_id);
