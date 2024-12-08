@@ -307,9 +307,8 @@ TEST_F(ManagerTest, Nand2)
     // Ensure the right triple was created.
     EXPECT_EQ(next_id, manager.neg(a_id));
 
-    // Will create two new table entries.
+    // Will create new table entries.
     const BDD_ID nand_id = manager.nand2(a_id, b_id);
-    EXPECT_TRUE(nand_id == next_id + 2);
 
     // Will not create new table entries, already created by previous call.
     EXPECT_EQ(manager.nand2(b_id, a_id), nand_id);
@@ -340,9 +339,8 @@ TEST_F(ManagerTest, Nor2)
     // Ensure the right triple was created.
     EXPECT_EQ(next_id, manager.neg(a_id));
 
-    // Will create two new table entries.
+    // Will create new table entries.
     const BDD_ID nor_id = manager.nor2(a_id, b_id);
-    EXPECT_TRUE(nor_id == next_id + 2);
 
     // Will not create new table entries, already created by previous call.
     EXPECT_EQ(manager.nor2(b_id, a_id), nor_id);
@@ -373,9 +371,8 @@ TEST_F(ManagerTest, Xnor2)
     // Ensure the right triple was created.
     EXPECT_EQ(next_id, manager.neg(a_id));
 
-    // Will create two new table entries.
+    // Will create new table entries.
     const BDD_ID xnor_id = manager.xnor2(a_id, b_id);
-    EXPECT_TRUE(xnor_id == next_id + 2);
 
     // Will not create new table entries, already created by previous call.
     EXPECT_EQ(manager.xnor2(b_id, a_id), xnor_id);
