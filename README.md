@@ -209,13 +209,13 @@ _Below is an example of how you can instruct your audience on installing and set
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 #### Part-2
-- [ ] TODO
-- [X] DONE
+- [X] TODO
+- [ ] DONE
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 #### Part-3
-- [ ] TODO
-- [X] DONE
+- [X] TODO
+- [ ] DONE
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- CONTACT -->
