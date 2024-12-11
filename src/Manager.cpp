@@ -1,5 +1,6 @@
 #include "Manager.h"
 #include <algorithm>
+#include <fstream>
 
 namespace ClassProject {
 
@@ -200,6 +201,31 @@ size_t Manager::uniqueTableSize()
 }
 
 void Manager::visualizeBDD(std::string filepath, BDD_ID &root)
-{}
+{
+    std::ofstream file(filepath, std::ios::trunc);
+    const std::string indent = "    ";
+
+    file << "graph BDD {\n\n"
+         << indent << "node[shape=circle]\n\n"
+         << indent << "False [shape=rectangle]\n"
+         << indent << "True [shape=rectangle]\n\n";
+
+    // For fetching the ID of each node
+    std::set<BDD_ID> nodes;
+    findNodes(root, nodes);
+
+    for (auto node : nodes)
+    {
+        if (!isConstant(node))
+        {
+            file << indent << getTopVarName(node) << " -- " << getTopVarName(coFactorTrue(node))
+                 << "\n";
+            file << indent << getTopVarName(node) << " -- " << getTopVarName(coFactorFalse(node))
+                 << " [style=dashed]\n";
+        }
+    }
+
+    file << "\n}\n";
+}
 
 } // namespace ClassProject
