@@ -185,6 +185,9 @@ TEST_F(ManagerTest, Ite)
     EXPECT_EQ(manager.topVar(next_id), a_id);
     EXPECT_EQ(manager.coFactorTrue(next_id), b_id);
     EXPECT_EQ(manager.coFactorFalse(next_id), c_id);
+
+    // Non-leaf node condition with equivalent then and else.
+    EXPECT_EQ(manager.ite(a_id, b_id, b_id), b_id);
 }
 
 // Manager::and2() test
@@ -390,6 +393,7 @@ TEST_F(ManagerTest, GetTopVarName)
     EXPECT_EQ(manager.getTopVarName(a_id), "a");
     EXPECT_EQ(manager.getTopVarName(b_id), "b");
     EXPECT_EQ(manager.getTopVarName(op_id), "a");
+    EXPECT_EQ(manager.getTopVarName(op_id + 1), "UNKNOWN");
 }
 
 // Manager::findNodes() test
