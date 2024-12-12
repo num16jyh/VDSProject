@@ -104,7 +104,10 @@ TEST_F(ManagerTest, TopVar)
 TEST_F(ManagerTest, CoFactorTrue)
 {
     const BDD_ID a_id = manager.createVar("a");
-    const BDD_ID nonexistent_id = a_id + 1;
+    const BDD_ID b_id = manager.createVar("b");
+    const BDD_ID c_id = manager.createVar("c");
+    const BDD_ID b_or_c_id = manager.or2(b_id, c_id);
+    const BDD_ID nonexistent_id = b_or_c_id + 1;
 
     // Call with single argument.
     EXPECT_EQ(manager.coFactorTrue(TRUE_ID), TRUE_ID);
@@ -129,6 +132,12 @@ TEST_F(ManagerTest, CoFactorTrue)
     // function ID argument.
     EXPECT_EQ(manager.coFactorTrue(nonexistent_id, a_id), nonexistent_id);
 
+    // Call with variable ID lower than the ID of the node's top variable.
+    EXPECT_EQ(manager.coFactorTrue(b_or_c_id, c_id), TRUE_ID);
+
+    // Call with variable ID higher than the ID of the node's top variable.
+    EXPECT_EQ(manager.coFactorTrue(b_or_c_id, a_id), b_or_c_id);
+
     // coFactorTrue() is also tested for every logical function in its
     // respective test.
 }
@@ -137,7 +146,10 @@ TEST_F(ManagerTest, CoFactorTrue)
 TEST_F(ManagerTest, CoFactorFalse)
 {
     const BDD_ID a_id = manager.createVar("a");
-    const BDD_ID nonexistent_id = a_id + 1;
+    const BDD_ID b_id = manager.createVar("b");
+    const BDD_ID c_id = manager.createVar("c");
+    const BDD_ID b_or_c_id = manager.or2(b_id, c_id);
+    const BDD_ID nonexistent_id = b_or_c_id + 1;
 
     // Call with single argument.
     EXPECT_EQ(manager.coFactorFalse(TRUE_ID), TRUE_ID);
@@ -162,6 +174,12 @@ TEST_F(ManagerTest, CoFactorFalse)
     // function ID argument.
     EXPECT_EQ(manager.coFactorFalse(nonexistent_id, a_id), nonexistent_id);
 
+    // Call with variable ID lower than the ID of the node's top variable.
+    EXPECT_EQ(manager.coFactorFalse(b_or_c_id, c_id), b_id);
+
+    // Call with variable ID higher than the ID of the node's top variable.
+    EXPECT_EQ(manager.coFactorTrue(b_or_c_id, a_id), b_or_c_id);
+
     // coFactorFalse() is also tested for every logical function in its
     // respective test.
 }
@@ -172,7 +190,10 @@ TEST_F(ManagerTest, Ite)
     const BDD_ID a_id = manager.createVar("a");
     const BDD_ID b_id = manager.createVar("b");
     const BDD_ID c_id = manager.createVar("c");
-    const BDD_ID next_id = c_id + 1;
+    const BDD_ID d_id = manager.createVar("d");
+    const BDD_ID a_or_b_id = manager.or2(a_id, b_id);
+    const BDD_ID a_and_b_id = manager.and2(a_id, b_id);
+    const BDD_ID neg_b_id = manager.neg(b_id);
 
     // True condition.
     EXPECT_EQ(manager.ite(TRUE_ID, a_id, b_id), a_id);
@@ -180,14 +201,22 @@ TEST_F(ManagerTest, Ite)
     // False condition.
     EXPECT_EQ(manager.ite(FALSE_ID, a_id, b_id), b_id);
 
-    // Non-leaf node condition. Results in the creation of a new table entry.
-    EXPECT_EQ(manager.ite(a_id, b_id, c_id), next_id);
-    EXPECT_EQ(manager.topVar(next_id), a_id);
-    EXPECT_EQ(manager.coFactorTrue(next_id), b_id);
-    EXPECT_EQ(manager.coFactorFalse(next_id), c_id);
+    // Check correct generation of a simple triple.
+    const BDD_ID ite_abc_id = manager.ite(a_id, b_id, c_id);
+    EXPECT_EQ(manager.topVar(ite_abc_id), a_id);
+    EXPECT_EQ(manager.coFactorTrue(ite_abc_id), b_id);
+    EXPECT_EQ(manager.coFactorFalse(ite_abc_id), c_id);
 
     // Non-leaf node condition with equivalent then and else.
     EXPECT_EQ(manager.ite(a_id, b_id, b_id), b_id);
+
+    // Check correct variable ordering and reduction.
+    EXPECT_EQ(manager.ite(b_id, TRUE_ID, a_id), a_or_b_id);
+    EXPECT_EQ(manager.ite(b_id, a_id, FALSE_ID), a_and_b_id);
+    EXPECT_EQ(manager.ite(b_id, a_id, TRUE_ID), manager.or2(a_and_b_id, neg_b_id));
+    EXPECT_EQ(manager.ite(b_id, FALSE_ID, a_id), manager.and2(a_id, neg_b_id));
+    EXPECT_EQ(manager.topVar(manager.ite(d_id, TRUE_ID, c_id)), c_id);
+    EXPECT_EQ(manager.topVar(manager.ite(d_id, FALSE_ID, c_id)), c_id);
 }
 
 // Manager::and2() test
