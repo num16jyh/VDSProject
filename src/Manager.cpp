@@ -62,9 +62,17 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
     if (i == FALSE_ID)
         return e;
 
-    const BDD_ID x = topVar(i);
-    const BDD_ID high = ite(coFactorTrue(i), coFactorTrue(t, x), coFactorTrue(e, x));
-    const BDD_ID low = ite(coFactorFalse(i), coFactorFalse(t, x), coFactorFalse(e, x));
+    if (!isConstant(t) && (topVar(t) < topVar(i)))
+        return ite(t, ite(i, coFactorTrue(t), coFactorTrue(e, topVar(t))),
+                   ite(i, coFactorFalse(t), coFactorFalse(e, topVar(t))));
+
+    if (!isConstant(e) && (topVar(e) < topVar(i)))
+        return ite(e, ite(i, coFactorTrue(t, topVar(e)), coFactorTrue(e)),
+                   ite(i, coFactorFalse(t, topVar(e)), coFactorFalse(e)));
+
+    BDD_ID x = topVar(i);
+    BDD_ID high = ite(coFactorTrue(i), coFactorTrue(t, x), coFactorTrue(e, x));
+    BDD_ID low = ite(coFactorFalse(i), coFactorFalse(t, x), coFactorFalse(e, x));
 
     if (high == low) // reduce
         return high;
@@ -86,22 +94,36 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
 
 BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x)
 {
-    if (isConstant(f) || topVar(f) != x)
+    //if (isConstant(f) || (topVar(x) < topVar(f)))
+    if (isConstant(f))
         return f;
 
-    if (f < table_vector.size())
-        return table_vector[f].high;
+    if (f < table_vector.size()) // if f's ID exists in table
+    {
+        if (topVar(f) == x)
+            return table_vector[f].high;
+
+        return ite(topVar(f), coFactorTrue(table_vector[f].high, x),
+                   coFactorTrue(table_vector[f].low, x));
+    }
 
     return f;
 }
 
 BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
 {
-    if (isConstant(f) || topVar(f) != x)
+    //if (isConstant(f) || (topVar(x) < topVar(f)))
+    if (isConstant(f))
         return f;
 
-    if (f < table_vector.size())
-        return table_vector[f].low;
+    if (f < table_vector.size()) // if f's ID exists in table
+    {
+        if (topVar(f) == x)
+            return table_vector[f].low;
+
+        return ite(topVar(f), coFactorFalse(table_vector[f].high, x),
+                   coFactorFalse(table_vector[f].low, x));
+    }
 
     return f;
 }
