@@ -63,11 +63,11 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
         return e;
 
     if (!isConstant(t) && (topVar(t) < topVar(i)))
-        return ite(t, ite(i, coFactorTrue(t), coFactorTrue(e, topVar(t))),
+        return ite(topVar(t), ite(i, coFactorTrue(t), coFactorTrue(e, topVar(t))),
                    ite(i, coFactorFalse(t), coFactorFalse(e, topVar(t))));
 
     if (!isConstant(e) && (topVar(e) < topVar(i)))
-        return ite(e, ite(i, coFactorTrue(t, topVar(e)), coFactorTrue(e)),
+        return ite(topVar(e), ite(i, coFactorTrue(t, topVar(e)), coFactorTrue(e)),
                    ite(i, coFactorFalse(t, topVar(e)), coFactorFalse(e)));
 
     BDD_ID x = topVar(i);
