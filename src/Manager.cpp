@@ -70,9 +70,9 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
         return ite(topVar(e), ite(i, coFactorTrue(t, topVar(e)), coFactorTrue(e)),
                    ite(i, coFactorFalse(t, topVar(e)), coFactorFalse(e)));
 
-    BDD_ID x = topVar(i);
-    BDD_ID high = ite(coFactorTrue(i), coFactorTrue(t, x), coFactorTrue(e, x));
-    BDD_ID low = ite(coFactorFalse(i), coFactorFalse(t, x), coFactorFalse(e, x));
+    const BDD_ID x = topVar(i);
+    const BDD_ID high = ite(coFactorTrue(i), coFactorTrue(t, x), coFactorTrue(e, x));
+    const BDD_ID low = ite(coFactorFalse(i), coFactorFalse(t, x), coFactorFalse(e, x));
 
     if (high == low) // reduce
         return high;
@@ -220,20 +220,25 @@ void Manager::visualizeBDD(std::string filepath, BDD_ID &root)
 
     file << "graph BDD {\n\n"
          << indent << "node[shape=circle]\n\n"
-         << indent << "False [shape=rectangle]\n"
-         << indent << "True [shape=rectangle]\n\n";
+         << indent << "node0 [shape=rectangle, label=False]\n"
+         << indent << "node1 [shape=rectangle, label=True]\n\n";
 
     // For fetching the ID of each node
     std::set<BDD_ID> nodes;
     findNodes(root, nodes);
 
     for (auto node : nodes)
+        if (!isConstant(node))
+            file << indent << "node" << node << " [label=" << getTopVarName(node) << "]\n";
+
+    file << indent << '\n';
+
+    for (auto node : nodes)
     {
         if (!isConstant(node))
         {
-            file << indent << getTopVarName(node) << " -- " << getTopVarName(coFactorTrue(node))
-                 << "\n";
-            file << indent << getTopVarName(node) << " -- " << getTopVarName(coFactorFalse(node))
+            file << indent << "node" << node << " -- " << "node" << coFactorTrue(node) << "\n";
+            file << indent << "node" << node << " -- " << "node" << coFactorFalse(node)
                  << " [style=dashed]\n";
         }
     }
