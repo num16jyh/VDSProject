@@ -140,26 +140,17 @@ BDD_ID Manager::coFactorFalse(BDD_ID f)
 
 BDD_ID Manager::and2(BDD_ID a, BDD_ID b)
 {
-    if (topVar(a) < topVar(b))
-        return ite(a, b, FALSE_ID);
-
-    return ite(b, a, FALSE_ID);
+    return ite(a, b, FALSE_ID);
 }
 
 BDD_ID Manager::or2(BDD_ID a, BDD_ID b)
 {
-    if (topVar(a) < topVar(b))
-        return ite(a, TRUE_ID, b);
-
-    return ite(b, TRUE_ID, a);
+    return ite(a, TRUE_ID, b);
 }
 
 BDD_ID Manager::xor2(BDD_ID a, BDD_ID b)
 {
-    if (topVar(a) < topVar(b))
-        return ite(a, neg(b), b);
-
-    return ite(b, neg(a), a);
+    return ite(a, neg(b), b);
 }
 
 BDD_ID Manager::neg(BDD_ID a)
