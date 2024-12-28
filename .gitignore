@@ -1,4 +1,8 @@
 gtest/
+/results_c432
+/results_c3540
+results_*
 cmake-build-debug
+cmake-build-release
 .idea
 cmake-build-debug-coverage
