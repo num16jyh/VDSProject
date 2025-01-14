@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <unordered_set>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
@@ -68,7 +69,7 @@ public:
     void visualizeBDD(std::string filepath, BDD_ID &root) override;
 
 private:
-    struct TableEntry
+    struct UniqueTableEntry
     {
         string label;
         BDD_ID id = 0;
@@ -77,15 +78,15 @@ private:
         BDD_ID top;
 
         // For lookup by triple.
-        bool operator==(const TableEntry &other) const
+        bool operator==(const UniqueTableEntry &other) const
         {
             return (high == other.high) && (low == other.low) && (top == other.top);
         }
     };
 
-    struct TableEntryHash
+    struct UniqueTableEntryHash
     {
-        size_t operator()(const TableEntry& entry) const noexcept
+        size_t operator()(const UniqueTableEntry& entry) const noexcept
         {
             // Combine the 21 least significant bits of high, low, and top IDs
             // into a single 64-bit unsigned integer in order to only hash once.
@@ -103,15 +104,44 @@ private:
         }
     };
 
-protected:
-    //TODO: Data is duplicated, may or may not benefit performance, will see.
-    vector<TableEntry> table_vector; // for lookup by ID
-    unordered_set<TableEntry, TableEntryHash> table_set; // for lookup by triple
-
-    void addTableEntry(const TableEntry &new_entry)
+    struct ComputedTableEntry
     {
-        table_vector.push_back(new_entry);
-        table_set.insert(new_entry);
+        BDD_ID i;
+        BDD_ID t;
+        BDD_ID e;
+
+        // For lookup by triple.
+        bool operator==(const ComputedTableEntry &other) const
+        {
+            return (i == other.i) && (t == other.t) && (e == other.e);
+        }
+    };
+
+    struct ComputedTableEntryHash
+    {
+        size_t operator()(const ComputedTableEntry& entry) const noexcept
+        {
+            // Same logic as for the unique table set hashing.
+            const size_t shift = 21;
+            const uint64_t mask_lsb = 0x01FFFFFu;
+
+            uint64_t three_in_one = entry.i & mask_lsb;
+            three_in_one |= (entry.t & mask_lsb) << shift;
+            three_in_one |= (entry.e & mask_lsb) << (2 * shift);
+
+            return hash<uint64_t>{}(three_in_one);
+        }
+    };
+
+protected:
+    vector<UniqueTableEntry> unique_table_vector; // for lookup by ID
+    unordered_set<UniqueTableEntry, UniqueTableEntryHash> unique_table_set; // for lookup by triple
+    unordered_map<ComputedTableEntry, BDD_ID, ComputedTableEntryHash> computed_table_map; // for caching ite results
+
+    void addTableEntry(const UniqueTableEntry &new_entry)
+    {
+        unique_table_vector.push_back(new_entry);
+        unique_table_set.insert(new_entry);
     }
 
     const BDD_ID FALSE_ID = 0;

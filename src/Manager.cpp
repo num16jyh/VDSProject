@@ -7,17 +7,17 @@ namespace ClassProject {
 Manager::Manager()
 {
     // Initialize table with False and True nodes.
-    const TableEntry false_entry = {"False", FALSE_ID, FALSE_ID, FALSE_ID, FALSE_ID};
+    const UniqueTableEntry false_entry = {"False", FALSE_ID, FALSE_ID, FALSE_ID, FALSE_ID};
     addTableEntry(false_entry);
 
-    const TableEntry true_entry = {"True", TRUE_ID, TRUE_ID, TRUE_ID, TRUE_ID};
+    const UniqueTableEntry true_entry = {"True", TRUE_ID, TRUE_ID, TRUE_ID, TRUE_ID};
     addTableEntry(true_entry);
 }
 
 BDD_ID Manager::createVar(const std::string &label)
 {
-    const BDD_ID id = table_vector.size();
-    const TableEntry new_entry = {label, id, TRUE_ID, FALSE_ID, id};
+    const BDD_ID id = unique_table_vector.size();
+    const UniqueTableEntry new_entry = {label, id, TRUE_ID, FALSE_ID, id};
     addTableEntry(new_entry);
 
     return id;
@@ -43,13 +43,13 @@ bool Manager::isVariable(BDD_ID x)
     if (x == TRUE_ID || x == FALSE_ID)
         return false;
 
-    return (x < table_vector.size()) && (x == topVar(x));
+    return (x < unique_table_vector.size()) && (x == topVar(x));
 }
 
 BDD_ID Manager::topVar(BDD_ID f)
 {
-    if (f < table_vector.size())
-        return table_vector[f].top;
+    if (f < unique_table_vector.size())
+        return unique_table_vector[f].top;
 
     return f;
 }
@@ -62,33 +62,49 @@ BDD_ID Manager::ite(BDD_ID i, BDD_ID t, BDD_ID e)
     if (i == FALSE_ID)
         return e;
 
-    if (!isConstant(t) && (topVar(t) < topVar(i)))
-        return ite(topVar(t), ite(i, coFactorTrue(t), coFactorTrue(e, topVar(t))),
-                   ite(i, coFactorFalse(t), coFactorFalse(e, topVar(t))));
+    if ((t == TRUE_ID) && (e == FALSE_ID))
+        return i;
 
-    if (!isConstant(e) && (topVar(e) < topVar(i)))
-        return ite(topVar(e), ite(i, coFactorTrue(t, topVar(e)), coFactorTrue(e)),
-                   ite(i, coFactorFalse(t, topVar(e)), coFactorFalse(e)));
+    if (t == e)
+        return e;
 
-    const BDD_ID x = topVar(i);
-    const BDD_ID high = ite(coFactorTrue(i), coFactorTrue(t, x), coFactorTrue(e, x));
-    const BDD_ID low = ite(coFactorFalse(i), coFactorFalse(t, x), coFactorFalse(e, x));
+    // Check computed table.
+    const ComputedTableEntry key = {i, t, e};
+    auto it = computed_table_map.find(key);
+    if (it != computed_table_map.end())
+        return it->second;
+
+    BDD_ID x = topVar(i);
+    if (!isConstant(t) && (topVar(t) < x))
+        x = topVar(t);
+
+    if (!isConstant(e) && (topVar(e) < x))
+        x = topVar(e);
+
+    const BDD_ID high = ite(coFactorTrue(i, x), coFactorTrue(t, x), coFactorTrue(e, x));
+    const BDD_ID low = ite(coFactorFalse(i, x), coFactorFalse(t, x), coFactorFalse(e, x));
 
     if (high == low) // reduce
+    {
+        computed_table_map.insert({key, high});
         return high;
+    }
 
-    const BDD_ID id = table_vector.size();
+    const BDD_ID id = unique_table_vector.size();
 
-    const TableEntry entry = {.id = id, .high = high, .low = low, .top = x};
+    const UniqueTableEntry entry = {.id = id, .high = high, .low = low, .top = x};
 
-    auto ret = table_set.insert(entry); // will insert only if top/high/low triple does not exist
+    auto ret =
+        unique_table_set.insert(entry); // will insert only if top/high/low triple does not exist
 
     if (ret.second) // was inserted
     {
-        table_vector.push_back(entry);
+        unique_table_vector.push_back(entry);
+        computed_table_map.insert({key, id});
         return id;
     }
 
+    computed_table_map.insert({key, ret.first->id});
     return ret.first->id; // was not inserted, already existed
 }
 
@@ -98,13 +114,13 @@ BDD_ID Manager::coFactorTrue(BDD_ID f, BDD_ID x)
     if (isConstant(f))
         return f;
 
-    if (f < table_vector.size()) // if f's ID exists in table
+    if (f < unique_table_vector.size()) // if f's ID exists in table
     {
         if (topVar(f) == x)
-            return table_vector[f].high;
+            return unique_table_vector[f].high;
 
-        return ite(topVar(f), coFactorTrue(table_vector[f].high, x),
-                   coFactorTrue(table_vector[f].low, x));
+        return ite(topVar(f), coFactorTrue(unique_table_vector[f].high, x),
+                   coFactorTrue(unique_table_vector[f].low, x));
     }
 
     return f;
@@ -116,13 +132,13 @@ BDD_ID Manager::coFactorFalse(BDD_ID f, BDD_ID x)
     if (isConstant(f))
         return f;
 
-    if (f < table_vector.size()) // if f's ID exists in table
+    if (f < unique_table_vector.size()) // if f's ID exists in table
     {
         if (topVar(f) == x)
-            return table_vector[f].low;
+            return unique_table_vector[f].low;
 
-        return ite(topVar(f), coFactorFalse(table_vector[f].high, x),
-                   coFactorFalse(table_vector[f].low, x));
+        return ite(topVar(f), coFactorFalse(unique_table_vector[f].high, x),
+                   coFactorFalse(unique_table_vector[f].low, x));
     }
 
     return f;
@@ -177,10 +193,10 @@ std::string Manager::getTopVarName(const BDD_ID &root)
 {
     const BDD_ID top_id = topVar(root);
 
-    if (top_id >= table_vector.size())
+    if (top_id >= unique_table_vector.size())
         return "UNKNOWN";
 
-    return table_vector[top_id].label;
+    return unique_table_vector[top_id].label;
 }
 
 void Manager::findNodes(const BDD_ID &root, std::set<BDD_ID> &nodes_of_root)
@@ -210,7 +226,7 @@ void Manager::findVars(const BDD_ID &root, std::set<BDD_ID> &vars_of_root)
 
 size_t Manager::uniqueTableSize()
 {
-    return table_vector.size();
+    return unique_table_vector.size();
 }
 
 void Manager::visualizeBDD(std::string filepath, BDD_ID &root)
