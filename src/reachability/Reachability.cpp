@@ -165,6 +165,13 @@ void Reachability::setTransitionFunctions(const std::vector<BDD_ID> &transitionF
         throw std::runtime_error("setTransitionFunctions() vector argument size does not match the "
                                  "number of state variables.");
 
+    for (std::size_t i = 0; i < transitionFunctions.size(); i++)
+    {
+        if (transitionFunctions[i] >= this->unique_table_vector.size())
+            throw std::runtime_error("setTransitionFunctions() vector argument contains a non-existent BDD_ID.");
+    }
+
+
     m_transitionFunctions = transitionFunctions;
     computeTransitionRelation();
 }
