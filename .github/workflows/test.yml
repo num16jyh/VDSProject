@@ -16,8 +16,13 @@ jobs:
     - name: Configure CMake
       working-directory: ./build
       run: cmake ..
-    - name: Build
+    - name: Build Manager Tests
       working-directory: ./build
       run: cmake --build . --target VDSProject_test -j 4
-    - name: Run
+    - name: Run Manager Tests
       run: ./build/src/test/VDSProject_test
+    - name: Build Reachability Tests
+      working-directory: ./build
+      run: cmake --build . --target VDSProject_reachability -j 4
+    - name: Run Reachability Tests
+      run: ./build/src/reachability/VDSProject_reachability
