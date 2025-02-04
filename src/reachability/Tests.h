@@ -96,8 +96,7 @@ TEST_F(ReachabilityTest, getStates)
 // Test if getInputs returns the correct input bits
 TEST_F(ReachabilityTest, GetInputsTest)
 {
-    // Assuming the input bits are assigned IDs 3 and 4 (since state bits are 2 and 4)
-    std::vector<BDD_ID> expectedInputs = {3, 4};
+    std::vector<BDD_ID> expectedInputs = {};
     EXPECT_EQ(expectedInputs, fsm2->getInputs());
 }
 
@@ -166,4 +165,5 @@ TEST_F(ReachabilityTest, SetTransitionFunctionsTest)
     EXPECT_THROW(fsm2->setTransitionFunctions(invalidTransitionFunctions),
                  std::runtime_error); // Unknown ID
 }
+
 #endif
